@@ -29,6 +29,11 @@
 
             </section>
 
+            <div class="right_column_clone">
+                <?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
+                <?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
+            </div>
+
         </aside>
 
         <article class="center_column">
@@ -75,7 +80,7 @@
         <aside class="right_column">
 
             <section class="side_widgets_wrap">
-                <?php include dirname(__FILE__).('/widgets/side_what_to_follow.php'); ?>
+                <?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
             </section>
 
             <?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
@@ -138,7 +143,7 @@
 
         if ( !search.accounts.length ) {
           location.href="/404.php";
-        } else if (search.accounts[0].url === query) {
+        } else if ( "@"+search.accounts[0].acct === query ) {
           setAccount(search.accounts[0]);
           setTimeline("accounts/"+search.accounts[0].id+"/statuses",[{name:'only_media',data:'true'}]);
           setRecentImages(search.accounts[0].id);

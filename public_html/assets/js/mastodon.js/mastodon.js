@@ -62,6 +62,64 @@ var MastodonAPI = function(config) {
                 },
                 error: function(xhr, textStatus, errorThrown) {
                   putMessage(`[${xhr.status}] ${xhr.responseJSON['error']}`);
+                  if ( xhr.status === 401 ) {
+                    location.href = "/logout"
+                  }
+                }
+            });
+        },
+        getArray: function (endpoint) {
+            // for GET API calls
+            // can be called with two or three parameters
+            // endpoint, callback
+            // or
+            // endpoint, queryData, callback
+            // where querydata is an object {["paramname1", "paramvalue1], ["paramname2","paramvalue2"]}
+
+            // variables
+            var queryData, callback,
+                queryStringAppend = "?";
+
+            // check with which arguments we're supplied
+            if (typeof arguments[1] === "function") {
+                queryData = {};
+                callback = arguments[1];
+            } else {
+                queryData = arguments[1];
+                callback = arguments[2];
+            }
+            // build queryData Object into a URL Query String
+            for (var i in queryData) {
+                if (queryData.hasOwnProperty(i)) {
+                    if (typeof queryData[i] === "string") {
+                        queryStringAppend += queryData[i] + "&";
+                    } else if (typeof queryData[i] === "object") {
+                        for ( var j in queryData[i].data ){
+                          queryStringAppend += queryData[i].name + "[]="+ queryData[i].data[j] + "&";
+                        }
+                    }
+                }
+            }
+            // ajax function
+            $.ajax({
+                url: apiBase + endpoint + queryStringAppend,
+                type: "GET",
+                headers: {"Authorization": "Bearer " + config.api_user_token},
+                success: function(data, textStatus, xhr) {
+
+                    //weeey it was successful
+                    console.log("Successful GET API request to " +apiBase+endpoint);
+                    responce_headers = xhr.getAllResponseHeaders();
+
+                    //aaand start the callback
+                    //might have to check what "textStatus" actually is, jquery docs are a bit dodgy
+                    callback(data,textStatus);
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                  putMessage(`[${xhr.status}] ${xhr.responseJSON['error']}`);
+                  if ( xhr.status === 401 ) {
+                    location.href = "/logout"
+                  }
                 }
             });
         },
@@ -104,6 +162,9 @@ var MastodonAPI = function(config) {
                 },
                 error: function(xhr, textStatus, errorThrown) {
                   putMessage(`[${xhr.status}] ${xhr.responseJSON['error']}`);
+                  if ( xhr.status === 401 ) {
+                    location.href = "/logout"
+                  }
                 }
             });
         },
@@ -129,6 +190,9 @@ var MastodonAPI = function(config) {
                 },
                 error: function(xhr, textStatus, errorThrown) {
                     putMessage(`[${xhr.status}] ${xhr.responseJSON['error']}`);
+                    if ( xhr.status === 401 ) {
+                      location.href = "/logout"
+                    }
                 }
             });
         },
@@ -158,6 +222,9 @@ var MastodonAPI = function(config) {
                 },
                 error: function(xhr, textStatus, errorThrown) {
                   putMessage(`[${xhr.status}] ${xhr.responseJSON['error']}`);
+                  if ( xhr.status === 401 ) {
+                    location.href = "/logout"
+                  }
                 }
             });
 
@@ -174,6 +241,9 @@ var MastodonAPI = function(config) {
                 },
                 error: function(xhr, textStatus, errorThrown) {
                   putMessage(`[${xhr.status}] ${xhr.responseJSON['error']}`);
+                  if ( xhr.status === 401 ) {
+                    location.href = "/logout"
+                  }
                 }
             });
         },
@@ -199,67 +269,6 @@ var MastodonAPI = function(config) {
             es.onmessage = listener;
 
 
-        },
-        registerApplication: function (client_name, redirect_uri, scopes, website, callback) {
-            //register a new application
-
-            // OAuth Auth flow:
-            // First register the application
-            // 2) get a access code from a user (using the link, generation function below!)
-            // 3) insert the data you got from the application and the code from the user into
-            // getAccessTokenFromAuthCode. Note: scopes has to be an array, every time!
-            // For example ["read", "write"]
-
-            //determine which parameters we got
-            if (website === null) {
-                website = "";
-            }
-            // build scope array to string for the api request
-            var scopeBuild = "";
-            if (typeof scopes !== "string") {
-                scopes = scopes.join(" ");
-            }
-            $.ajax({
-                url: apiBase + "apps",
-                type: "POST",
-                data: {
-                    client_name: client_name,
-                    redirect_uris: redirect_uri,
-                    scopes: scopes,
-                    website: website
-                },
-                success: function (data, textStatus) {
-                    console.log("Registered Application: " + data);
-                    callback(data);
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                  putMessage(`[${xhr.status}] ${xhr.responseJSON['error']}`);
-                }
-            });
-        },
-        generateAuthLink: function (client_id, redirect_uri, responseType, scopes) {
-            return config.instance + "/oauth/authorize?client_id=" + client_id + "&redirect_uri=" + redirect_uri +
-                    "&response_type=" + responseType + "&scope=" + scopes.join("+");
-        },
-        getAccessTokenFromAuthCode: function (client_id, client_secret, redirect_uri, code, callback) {
-            $.ajax({
-                url: config.instance + "/oauth/token",
-                type: "POST",
-                data: {
-                    client_id: client_id,
-                    client_secret: client_secret,
-                    redirect_uri: redirect_uri,
-                    grant_type: "authorization_code",
-                    code: code
-                },
-                success: function (data, textStatus) {
-                    console.log("Got Token: " + data);
-                    callback(data);
-                },
-                error: function(xhr, textStatus, errorThrown) {
-                  putMessage(`[${xhr.status}] ${xhr.responseJSON['error']}`);
-                }
-            });
         }
     };
 };

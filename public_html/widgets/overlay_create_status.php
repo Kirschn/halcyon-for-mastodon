@@ -4,7 +4,7 @@
     <span>Compose new Toot</span>
   </header>
 
-  <form id="overlay_status_form" name="overlay_status_form" class="status_form">
+  <form id="overlay_status_form" name="overlay_status_form" class="status_form ready">
 
       <div class="status_top">
         <input class="status_spoiler invisible" name="status_spoiler" placeholder="Content warning" type="text"/>
@@ -100,5 +100,5 @@
       </div>
 
   </form>
-  
+
 </div>

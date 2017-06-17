@@ -1,4 +1,14 @@
 /*-----------------------------------
+  Reset
+-----------------------------------*/
+
+$(function() {
+
+  $('input[type="file"]').val('');
+
+})
+
+/*-----------------------------------
   Buttons
 -----------------------------------*/
 
@@ -169,9 +179,15 @@ $(function() {
   $(document).on('click','.cw_button', function(e) {
 
       e.stopPropagation();
+      const article = $(this).parent();
 
-      $(this).toggleClass('invisible');
-      $(this).parent().toggleClass('content_warning');
+      if ( article.hasClass('content_warning') ) {
+        $(this).text('SHOW LESS');
+        article.removeClass('content_warning');
+      } else {
+        $(this).text('SHOW MORE');
+        article.addClass('content_warning');
+      }
 
       return false;
   });
@@ -228,7 +244,9 @@ function mediaattachments_template(status) {
 
   let media_views = "";
 
-  if ( !status.sensitive ) {
+  if ( status.media_attachments[0].url === "/files/original/missing.png" ) {
+    return "";
+  } else if ( !status.sensitive ) {
     // NORMAL CONTENT
     media_views = `<div class='media_views' sid="${status.id}" media_length='${status.media_attachments.length}'>`;
   } else {
@@ -241,11 +259,12 @@ function mediaattachments_template(status) {
       </div>
     `;
   }
+
   if ( status.media_attachments[0].type === "video" | status.media_attachments[0].type === "gifv" ) {
     // VIDEO CONTENT
     media_views += (`
       <div class="media_attachment" otype="video/gifv" mediacount="0">
-        <iframe src="${status.media_attachments[0].url}" frameborder="0" allowfullscreen></iframe>
+        <video src="${status.media_attachments[0].url}" frameborder="0" allowfullscreen autoplay loop muted></video>
       </div>
     `);
   } else {
@@ -890,7 +909,7 @@ function status_template(status, class_options) {
                 </div>
             </header>
             <section class="toot_content">
-                <article class="toot_article ${article_option}">
+                <article class="toot_article ${article_option} emoji_poss">
                   ${alart_text}
                   <span class="status_content">
                     ${status.content}
@@ -1104,7 +1123,7 @@ function status_template(status, class_options) {
 
             <section class="toot_content">
 
-                <article class="toot_article ${article_option}">
+                <article class="toot_article ${article_option} emoji_poss">
                   ${alart_text}
                   <span class="status_content">
                     ${status.reblog.content}
@@ -1531,20 +1550,22 @@ function setTimeline(level,load_options) {
   // Get timeline
   api.get(level, load_options, function(statuses) {
 
-    reply_sources = {}
+    let reply_sources = {};
     for ( let i in statuses ) {
 
       timeline_template(statuses[i]).appendTo("#js-timeline");
 
       if (statuses[i].in_reply_to_id && level === "timelines/home" | level === "timelines/public" ) {
-        // alredy exist
-        if (!reply_sources[statuses[i].in_reply_to_id]) {
+
+        // 同じ返信先が無い場合
+        if (!reply_sources[statuses[i].in_reply_to_id] & !$(".toot_entry[sid='"+statuses[i].in_reply_to_id+"']").length ) {
           reply_sources[statuses[i].in_reply_to_id] = statuses[i].id;
           api.get('statuses/'+statuses[i].in_reply_to_id, function(in_reply_statuses) {
             $("#js-timeline .toot_entry[sid='"+reply_sources[in_reply_statuses.id]+"']").before(context_template(in_reply_statuses, 'ancestors_status default_padding'));
             replace_emoji();
           });
         }
+
       }
 
     };
@@ -1576,20 +1597,20 @@ function setTimeline(level,load_options) {
 
           if (statuses.length) {
 
-            reply_sources = {}
+            let reply_sources = {};
             for ( let i in statuses ) {
 
               timeline_template(statuses[i]).appendTo("#js-timeline");
 
               if (statuses[i].in_reply_to_id && level === "timelines/home" | level === "timelines/public" ) {
-                // alredy exist
-                if (!reply_sources[statuses[i].in_reply_to_id]) {
+                if (!reply_sources[statuses[i].in_reply_to_id] & !$(".toot_entry[sid='"+statuses[i].in_reply_to_id+"']").length) {
                   reply_sources[statuses[i].in_reply_to_id] = statuses[i].id;
                   api.get('statuses/'+statuses[i].in_reply_to_id, function(in_reply_statuses) {
                     $("#js-timeline .toot_entry[sid='"+reply_sources[in_reply_statuses.id]+"']").before(context_template(in_reply_statuses, 'ancestors_status default_padding'));
                     replace_emoji();
                   });
                 }
+
               }
 
             };
@@ -1661,7 +1682,7 @@ function setTimeline(level,load_options) {
 
                     //context
                     if ( level === "timelines/home" | level === "timelines/public" ) {
-                      if (userstream.payload.in_reply_to_id) {
+                      if (userstream.payload.in_reply_to_id & !$(".toot_entry[sid='"+userstream.in_reply_to_id+"']").length) {
                            let reply_source = userstream.payload.id;
                           api.get('statuses/'+userstream.payload.in_reply_to_id, function(in_reply_statuses) {
                             $("#js-timeline .toot_entry[sid='"+reply_source+"']").before(context_template(in_reply_statuses, 'ancestors_status default_padding'));
@@ -1725,7 +1746,7 @@ function setOtherTimeline(instance, load_options) {
   const loadstatus = instance + "timelines/public"
   api.getOther(loadstatus, load_options, function(statuses) {
 
-    reply_sources = {}
+    let reply_sources = {};
     for ( let i in statuses ) {
 
       timeline_template(statuses[i]).appendTo("#js-timeline");
@@ -1771,7 +1792,7 @@ function setOtherTimeline(instance, load_options) {
 
           if (statuses.length) {
 
-            reply_sources = {}
+            let reply_sources = {};
             for ( let i in statuses ) {
 
               timeline_template(statuses[i]).appendTo("#js-timeline");
@@ -1914,13 +1935,27 @@ function setNotifications(load_options) {
 
 function setFollows(mid, param, load_options) {
 
-  let isSyncing = true;
+  let isSyncing   = true,
+      followsList = [];
 
   api.get('accounts/'+mid+'/'+param, load_options, function(follows) {
 
+
     for (let i in follows) {
       follows_template(follows[i]).appendTo("#js-follows_profile");
+      followsList.unshift(follows[i].id);
     };
+
+    api.getArray('accounts/relationships', [{name:'id', data:followsList}], function(RelationshipsObj) {
+      for ( let i in RelationshipsObj ) {
+        if ( RelationshipsObj[i].following ) {
+          const button = $('#js-follows_profile .follow_button[mid="'+RelationshipsObj[i].id+'"]');
+          button.removeClass("follow_button");
+          button.addClass("following_button");
+          button.text('Following');
+        }
+      }
+    });
 
     links = getLinkFromXHRHeader(responce_headers);
     replace_emoji();
@@ -1943,11 +1978,25 @@ function setFollows(mid, param, load_options) {
 
         api.get('accounts/'+mid+'/'+param, load_options, function(follows) {
 
+          let followsList = [];
+
           if (follows.length) {
 
             for(let i in follows) {
               follows_template(follows[i]).appendTo("#js-follows_profile");
+              followsList.unshift(follows[i].id);
             };
+
+            api.getArray('accounts/relationships', [{name:'id', data:followsList}], function(RelationshipsObj) {
+              for ( let i in RelationshipsObj ) {
+                if ( RelationshipsObj[i].following ) {
+                  const button = $('#js-follows_profile .follow_button[mid="'+RelationshipsObj[i].id+'"]');
+                  button.removeClass("follow_button");
+                  button.addClass("following_button");
+                  button.text('Following');
+                }
+              }
+            });
 
             links = getLinkFromXHRHeader(responce_headers);
             replace_emoji();
@@ -2202,7 +2251,8 @@ function setOverlayMedia(sid,url) {
 
   // If not seletcting text, show status details
   $('#js-overlay_content_wrap').addClass('view');
-  $('#js-overlay_content_wrap').addClass('black_05');
+  $('#js-overlay_content_wrap').addClass('black_08');
+  $('#js-overlay_content .temporary_object').addClass('visible');
 
   api.get("statuses/"+sid, function(status) {
 
@@ -2287,9 +2337,12 @@ $(function() {
   // TEXTAREA
   $(document).on('change keyup','#overlay_status_form textarea, #overlay_status_form .status_spoiler', function(e) {
 
-    if ( e.keyCode !== 224 & e.keyCode !== 17 & e.keyCode !== undefined ) {
-
-
+    if (
+      e.keyCode !== 224 &
+      e.keyCode !== 17  &
+      e.keyCode !== undefined
+      //!$('#overlay_status_form').hasClass('ready')
+    ) {
 
       const textCount = $('#overlay_status_form textarea').val().length + $('#overlay_status_form .status_spoiler').val().length;
       let   textLen   = ( 500 - textCount );
@@ -2361,6 +2414,8 @@ $(function() {
   $(document).on('click','#overlay_status_form .submit_status_label', function(e) {
 
     $('#overlay_status_form').addClass('ready');
+    $('#overlay_status_form .status_textarea').addClass('disallow_select');
+    $('#overlay_status_form .character_count').html('<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>');
 
     const form = document.forms.overlay_status_form;
     if ( !$('#overlay_status_media_atta')[0].files.length ) {
@@ -2378,6 +2433,8 @@ $(function() {
         $('#overlay_status_form .status_textarea .media_attachments_preview_area').addClass('invisible');
         form.reset();
         $('#overlay_status_form').removeClass('ready');
+        $('#overlay_status_form .status_textarea').removeClass('disallow_select');
+        $('#overlay_status_form .character_count').html('500');
         $('.overlay_status .submit_status_label').removeClass('active_submit_button');
         $('.overlay_status').addClass('invisible');
         $('#js-overlay_content_wrap').removeClass('view');
@@ -2387,11 +2444,13 @@ $(function() {
 
     } else {
 
-      const attachment  = $('#overlay_status_media_atta').clone(),
-          dummy_form  = $('<form></form>').append(attachment),
-          media_array = [],
-          files       = dummy_form[0][0].files,
-          filesLen    = files.length -1;
+      const dummy_form  = $('<form></form>').append($('#overlay_status_media_atta')),
+            files       = dummy_form[0][0].files,
+            filesLen    = files.length -1;
+
+      let media_array = [];
+
+      $("#overlay_status_form .status_bottom").append($('<input id="overlay_status_media_atta" name="files" multiple="" class="invisible" type="file">'));
 
       for (let i=0; i<files.length; i++) {
 
@@ -2418,6 +2477,8 @@ $(function() {
               $('#overlay_status_form .status_textarea .media_attachments_preview_area').addClass('invisible');
               form.reset();
               $('#overlay_status_form').removeClass('ready');
+              $('#overlay_status_form .status_textarea').removeClass('disallow_select');
+              $('#overlay_status_form .character_count').html('500');
               $('.overlay_status .submit_status_label').removeClass('active_submit_button');
               $('.overlay_status').addClass('invisible');
               $('#js-overlay_content_wrap').removeClass('view');
@@ -2462,7 +2523,12 @@ $(function() {
   // TEXTAREA
   $(document).on('change keyup','#header_status_form textarea, #header_status_form .status_spoiler', function(e) {
 
-    if ( e.keyCode !== 224 & e.keyCode !== 17 & e.keyCode !== undefined ) {
+    if (
+      e.keyCode !== 224 &
+      e.keyCode !== 17  &
+      e.keyCode !== undefined
+      //!$('#header_status_form').hasClass('ready')
+    ) {
 
       const textCount = $('#header_status_form textarea').val().length + $('#header_status_form .status_spoiler').val().length;
       let   textLen   = ( 500 - textCount );
@@ -2545,6 +2611,8 @@ $(function() {
   $(document).on('click','#header_status_form .submit_status_label', function(e) {
 
     $('#header_status_form').addClass('ready');
+    $('#header_status_form .status_textarea').addClass('disallow_select');
+    $('#header_status_form .character_count').html('<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>');
 
     const form = document.forms.header_status_form;
     if ( !$('#header_status_media_atta')[0].files.length ) {
@@ -2562,15 +2630,20 @@ $(function() {
         $('#header_status_form .status_textarea .media_attachments_preview_area').addClass('invisible');
         form.reset();
         $('#header_status_form').removeClass('ready');
+        $('#header_status_form .status_textarea').removeClass('disallow_select');
+        $('#header_status_form .character_count').html('500');
       });
 
     } else {
 
-      const attachment  = $('#header_status_media_atta').clone(),
-          dummy_form  = $('<form></form>').append(attachment),
-          media_array = [],
-          files       = dummy_form[0][0].files,
-          filesLen    = files.length -1;
+      // 擬似formに追加。そのあとクローンを元の位置に戻す。
+      const dummy_form             = $('<form></form>').append($('#header_status_media_atta')),
+            files                  = dummy_form[0][0].files,
+            filesLen               = files.length -1;
+
+      let media_array = [];
+
+      $("#header_status_form .status_bottom").append($('<input id="header_status_media_atta" name="files" multiple="" class="invisible" type="file">'));
 
       for (let i=0; i<files.length; i++) {
 
@@ -2597,6 +2670,8 @@ $(function() {
               $('#header_status_form .status_textarea .media_attachments_preview_area').addClass('invisible');
               form.reset();
               $('#header_status_form').removeClass('ready');
+              $('#header_status_form .status_textarea').removeClass('disallow_select');
+              $('#header_status_form .character_count').html('500');
             });
 
           });
@@ -2651,7 +2726,12 @@ $(function() {
   // TEXTAREA
   $(document).on('change keyup','#reply_status_form textarea, #reply_status_form .status_spoiler', function(e) {
 
-    if ( e.keyCode !== 224 & e.keyCode !== 17 & e.keyCode !== undefined ) {
+    if (
+      e.keyCode !== 224 &
+      e.keyCode !== 17  &
+      e.keyCode !== undefined
+      //!$('#overlay_status_form').hasClass('ready')
+    ) {
 
       const textCount = $('#reply_status_form textarea').val().length + $('#reply_status_form .status_spoiler').val().length;
       let   textLen   = ( 500 - textCount );
@@ -2723,6 +2803,8 @@ $(function() {
   $(document).on('click','#reply_status_form .submit_status_label', function(e) {
 
     $('#reply_status_form').addClass('ready');
+    $('#reply_status_form .status_textarea').addClass('disallow_select');
+    $('#reply_status_form .character_count').html('<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>');
 
     let form = document.forms.reply_status_form;
     if ( !$('#reply_status_media_atta')[0].files.length ) {
@@ -2741,6 +2823,8 @@ $(function() {
         $('#reply_status_form .status_textarea .media_attachments_preview_area').addClass('invisible');
         form.reset();
         $('#reply_status_form').removeClass('ready');
+        $('#reply_status_form .status_textarea').removeClass('disallow_select');
+        $('#reply_status_form .character_count').html('500');
         $('.reply_status .submit_status_label').removeClass('active_submit_button');
         context_template(data, 'descendants_status').appendTo("#js-overlay_content .temporary_object .toot_detail_wrap");
         replace_emoji();
@@ -2749,11 +2833,13 @@ $(function() {
 
     } else {
 
-      const attachment  = $('#reply_status_media_atta').clone(),
-            dummy_form  = $('<form></form>').append(attachment),
-            media_array = [],
-            files       = dummy_form[0][0].files,
-            filesLen    = files.length -1;
+      const dummy_form             = $('<form></form>').append($('#reply_status_media_atta')),
+            files                  = dummy_form[0][0].files,
+            filesLen               = files.length -1;
+
+      let media_array = [];
+
+      $('#reply_status_form .status_bottom').append($('<input id="reply_status_media_atta" name="files" multiple="" class="invisible" type="file">'));
 
       for (let i=0; i<files.length; i++) {
 
@@ -2781,6 +2867,8 @@ $(function() {
               $('#reply_status_form .status_textarea .media_attachments_preview_area').addClass('invisible');
               form.reset();
               $('#reply_status_form').removeClass('ready');
+              $('#reply_status_form .status_textarea').removeClass('disallow_select');
+              $('#reply_status_form .character_count').html('500');
               $('.reply_status .submit_status_label').removeClass('active_submit_button');
               context_template(data, 'descendants_status').appendTo("#js-overlay_content .temporary_object .toot_detail_wrap");
               replace_emoji();
@@ -2851,7 +2939,12 @@ $(function() {
   // TEXTAREA
   $(document).on('change keyup','#single_reply_status_form textarea, #single_reply_status_form .status_spoiler', function(e) {
 
-    if ( e.keyCode !== 224 & e.keyCode !== 17 & e.keyCode !== undefined ) {
+    if (
+      e.keyCode !== 224 &
+      e.keyCode !== 17  &
+      e.keyCode !== undefined
+      //!$('#single_reply_status_form').hasClass('ready')
+    ) {
 
       const textCount = $('#single_reply_status_form textarea').val().length + $('#single_reply_status_form .status_spoiler').val().length;
       let   textLen   = ( 500 - textCount );
@@ -2923,6 +3016,8 @@ $(function() {
   $(document).on('click','#single_reply_status_form .submit_status_label', function(e) {
 
     $('#single_reply_status_form').addClass('ready');
+    $('#single_reply_status_form .status_textarea').addClass('disallow_select');
+    $('#single_reply_status_form .character_count').html('<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>');
 
     let form = document.forms.single_reply_status_form;
     if ( !$('#single_reply_status_media_atta')[0].files.length ) {
@@ -2941,6 +3036,8 @@ $(function() {
         $('#single_reply_status_form .status_textarea .media_attachments_preview_area').addClass('invisible');
         form.reset();
         $('#single_reply_status_form').removeClass('ready');
+        $('#single_reply_status_form .status_textarea').removeClass('disallow_select');
+        $('#single_reply_status_form .character_count').html('500');
         $('.single_reply_status .submit_status_label').removeClass('active_submit_button');
         $('.single_reply_status').addClass('invisible');
         $('#js-overlay_content_wrap').removeClass('view');
@@ -2951,11 +3048,13 @@ $(function() {
 
     } else {
 
-      const attachment  = $('#single_reply_status_media_atta').clone(),
-            dummy_form  = $('<form></form>').append(attachment),
-            media_array = [],
+      const dummy_form  = $('<form></form>').append($('#single_reply_status_media_atta')),
             files       = dummy_form[0][0].files,
             filesLen    = files.length -1;
+
+      let media_array = [];
+
+      $("#single_reply_status_form .status_bottom").append($('<input id="single_reply_status_media_atta" name="files" multiple="" class="invisible" type="file">'));
 
       for (let i=0; i<files.length; i++) {
 
@@ -2983,6 +3082,8 @@ $(function() {
               $('#single_reply_status_form .status_textarea .media_attachments_preview_area').addClass('invisible');
               form.reset();
               $('#single_reply_status_form').removeClass('ready');
+              $('#single_reply_status_form .status_textarea').removeClass('disallow_select');
+              $('#single_reply_status_form .character_count').html('500');
               $('.single_reply_status .submit_status_label').removeClass('active_submit_button');
               $('.single_reply_status').addClass('invisible');
               $('#js-overlay_content_wrap').removeClass('view');
@@ -3057,6 +3158,7 @@ $(function() {
     $('#js-overlay_content_wrap .overlay_copy_link').addClass('invisible');
 
     // remove here
+    $('#js-overlay_content .temporary_object, #js-overlay_content .parmanent_object').removeClass('visible');
     $('#js-overlay_content_wrap .overlay_status      .submit_status_label').removeClass('active_submit_button');
     $('#js-overlay_content_wrap .single_reply_status .submit_status_label').removeClass('active_submit_button');
     $('#js-overlay_content_wrap #reply_status_form   .submit_status_label').removeClass('active_submit_button');

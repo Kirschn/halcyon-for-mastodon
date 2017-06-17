@@ -11,7 +11,7 @@
         <div class="post_steraming_wrap">
         </div>
 
-        <h3>Defualt post privacy</h3>
+        <h3>Default post privacy</h3>
         <div class="post_privacy_wrap">
         </div>
 

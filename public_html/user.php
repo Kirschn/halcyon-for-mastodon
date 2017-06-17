@@ -26,6 +26,11 @@
                 <?php include dirname(__FILE__).('/widgets/user_recent_images.php'); ?>
             </section>
 
+            <div class="right_column_clone">
+                <?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
+                <?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
+            </div>
+
         </aside>
 
         <article class="center_column">
@@ -73,9 +78,8 @@
         </article>
 
         <aside class="right_column">
-            <!-- DEV TEAM -->
             <section class="side_widgets_wrap">
-                <?php include dirname(__FILE__).('/widgets/side_what_to_follow.php'); ?>
+                <?php include dirname(__FILE__).('/widgets/side_who_to_follow.php'); ?>
             </section>
             <!-- FOOTER -->
             <?php include dirname(__FILE__).('/widgets/side_footer.php'); ?>
@@ -134,14 +138,14 @@
       api.get('search', [{name:'q',data:query},{name:'resolve',data:'true'}], function(search) {
 
         if ( !search.accounts.length ) {
-          location.href = "/404.php";
-        } else if ( search.accounts[0].url === query ) {
-          $('title').text(replaced_emoji_return(search.accounts[0].display_name)+' (@'+search.accounts[0].acct+') | Halcyon');
-          setAccount(search.accounts[0]);
-          setTimeline("accounts/"+search.accounts[0].id+"/statuses",[{name:'exclude_replies',data:'true'}]);
-          setRecentImages(search.accounts[0].id)
+            location.href = "/404.php";
+        } else if ( "@"+search.accounts[0].acct === query ) {
+            $('title').text(replaced_emoji_return(search.accounts[0].display_name)+' (@'+search.accounts[0].acct+') | Halcyon');
+            setAccount(search.accounts[0]);
+            setTimeline("accounts/"+search.accounts[0].id+"/statuses",[{name:'exclude_replies',data:'true'}]);
+            setRecentImages(search.accounts[0].id)
         } else {
-          location.href = "/404.php";
+            location.href = "/404.php";
         }
 
       });

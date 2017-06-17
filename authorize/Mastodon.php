@@ -14,18 +14,21 @@ use Exception;
 --------------------*/
 class Mastodon extends \Mastodon_api
 {
-    private $clientName = 'Halcyon for Mastodon';
-    private $clientRedirectUris = 'https://halcyon.social/auth urn:ietf:wg:oauth:2.0:oob';
-    private $clientWebsite = 'https://halcyon.social/';
-    private $clientScopes = array('read', 'write', 'follow');
-    private $instances = array();
-    private $dbHost = '';
-    private $dbUser = '';
-    private $dbPass = '';
-    private $dbName = '';
-
 
     function __construct(){
+        $appSettings = parse_ini_file('../../config.ini', true);
+
+        $this->clientName         = $appSettings["App"]["api_client_name"];
+        $this->clientRedirectUris = $appSettings["App"]["api_client_website"].'/auth urn:ietf:wg:oauth:2.0:oob';
+        $this->clientWebsite      = $appSettings["App"]["api_client_website"];
+        $this->clientScopes       = array('read', 'write', 'follow');
+        $this->instances          = array();
+
+        $this->dbHost             = $appSettings["Mysql"]["db_host"];
+        $this->dbUser             = $appSettings["Mysql"]["db_user"];
+        $this->dbPass             = $appSettings["Mysql"]["db_pass"];
+        $this->dbName             = $appSettings["Mysql"]["db_name"];
+
         $this->database = new Database($this->dbHost, $this->dbUser, $this->dbPass, $this->dbName);
         $this->readInstances();
     }

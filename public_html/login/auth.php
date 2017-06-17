@@ -12,7 +12,7 @@
             location.href = '/logout';
         };
     </script>
-    
+
     <?php
         #!/usr/bin/env php
         #ini_set("display_errors", On);
@@ -29,7 +29,7 @@
             $URL    = 'https://'.$domain;
 
             $api->selectInstance($URL);
-            $response = $api->get_access_token('https://halcyon.social/auth?&host='.$domain, htmlspecialchars((string)filter_input(INPUT_GET, 'code'), ENT_QUOTES));
+            $response = $api->get_access_token($api->clientWebsite.'/auth?&host='.$domain, htmlspecialchars((string)filter_input(INPUT_GET, 'code'), ENT_QUOTES));
 
             if ($response['html']["access_token"]) {
 

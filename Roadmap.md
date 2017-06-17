@@ -1,11 +1,15 @@
 # Roadmap
 
 ## Next version
-- Oauth login
-- Add meida attachment's next/prev button
+- [x] Oauth login
+- [x] Support responsive
+- [ ] Add meida attachment's next/prev button
 
 ## Future
-- Multi account
-- Native profile edit
-- Support responsive
-- Dark theme
+- [ ] Multi account
+- [ ] Emoji picker
+- [ ] Native profile edit
+- [ ] Dark theme
+- [ ] Translation support
+- [ ] Mobile devices support
+- [ ] PHP PSR4 / Autoload

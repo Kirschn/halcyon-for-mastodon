@@ -325,14 +325,20 @@ class Mastodon_api {
 		return $response;
 	}
 
-	public function get_access_token ($client_id, $cliend_secret, $redirect_uri, $code) {
+	public function get_access_token ($redirect_uri,$code) {
 		$parameters = array();
-		$parameters['client_id'] = $client_id;
-		$parameters['client_secret'] = $cliend_secret;
-		$parameters['redirect_uri'] = $redirect_uri;
-		$parameters['grant_type'] = "authorization_code";
-		$parameters['code'] = $code;
+		$parameters['grant_type']    = 'authorization_code';
+		$parameters['redirect_uri']  = $redirect_uri;
+		$parameters['client_id']     = $this->client_id;
+		$parameters['client_secret'] = $this->client_secret;
+		$parameters['code']          = $code;
 		$response = $this->_post('/oauth/token',$parameters);
+
+		if (isset($response['html']["access_token"])) {
+			$this->token['access_token'] = $response['html']['access_token'];
+			$this->token['token_type'] = $response['html']['token_type'];
+		}
+
 		return $response;
 	}
 

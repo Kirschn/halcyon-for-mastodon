@@ -64,6 +64,7 @@ button {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
+	padding-bottom: 4px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -100,6 +101,7 @@ textarea {
 
 input {
 	max-width: 100%;
+	-webkit-appearance: none;
 }
 
 button, input[type="submit"], input[type="button"]{
@@ -161,17 +163,6 @@ body {
 }
 
 /* ready to post */
-.status_form.ready {
-	background-color: #F2FAFF!important;
-}
-.status_form.ready .status_bottom .status_media_attachment,
-.status_form.ready .status_bottom .status_privacy {
-  color: #7ECEFF!important;
-}
-.status_form.ready .status_bottom .status_CW > span,
-.status_form.ready .status_bottom .status_NSFW > span {
-  background-color: #7ECEFF!important;
-}
 .status_form.ready .status_bottom .submit_status_label {
   background-color: #A3D8FF!important;
 	pointer-events: none;
@@ -230,15 +221,20 @@ body {
 	border: none;
 	max-width: 100%;
 	font-size: 14px;
-	font-family : "Helvetica Neue",Helvetica,"ヒラギノ角ゴ Pro W3",
-	"Hiragino Kaku Gothic Pro",Meiryo,"メイリオ","ＭＳ Ｐゴシック",Arial,sans-serif;
+	font-family : "Helvetica Neue",Helvetica,"ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro",Meiryo,"メイリオ","ＭＳ Ｐゴシック",Arial,sans-serif;
 	line-height: normal;
+	background-color: transparent;
 }
 
 .status_form .status_textarea textarea.focus {
 	outline: 0;
 	color: #000;
 	height: 68px;
+}
+
+.status_form .status_textarea.disallow_select {
+	background-color: #F5F8FA;
+	pointer-events: none;
 }
 
 .status_form .status_textarea .media_attachments_preview_area {
@@ -958,7 +954,6 @@ body {
 .toot_entry .toot_entry_body .toot_content .toot_article {
 	font-size: 14px;
 	line-height: 20px;
-	margin-top: 4px;
 }
 
 .toot_entry .toot_entry_body .toot_content .toot_article a {
@@ -980,11 +975,10 @@ body {
 
 .toot_entry .toot_entry_body .toot_content .toot_reaction {
 	height: 21px;
-	flex-grow: 1;
+	width: calc( 100% / 3 );
 }
 
 .toot_entry .toot_entry_body .toot_content .toot_reaction button {
-	margin: auto;
 	color: #AAB8C2;
 	font-size: 18px;
 	height: 21px;
@@ -1033,6 +1027,7 @@ body {
 	margin: 8px 0;
 	height: 336px;
 	width: 100%;
+	cursor: pointer;
 	border-radius: 5px;
 	overflow: hidden;
 	position: relative;
@@ -1252,7 +1247,7 @@ body {
 
 #js-follows_profile{
 	display: flex;
-	width: 900px;
+	width: 600px;
 	box-sizing: border-box;
 	height: auto;
 	flex-wrap: wrap;
@@ -1396,6 +1391,7 @@ body {
 	position: absolute;
 	right: 16px;
 	top: -32px;
+	font-weight: 600;
 }
 
 #js-follows_profile .following_button i {
@@ -1648,6 +1644,7 @@ body {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	color: #333;
+	padding-bottom: 4px;
 }
 
 .side_widget .account_box .label_box h3 .dn {
@@ -1666,7 +1663,6 @@ body {
 	align-items: center;
 	font-size: 12px;
 	padding: 5px 16px;
-	margin-top: 4px;
 	border-radius: 4px;
 }
 
@@ -1731,7 +1727,7 @@ body {
 #header .header_nav_wrap {
 	box-sizing: border-box;
 	display: flex;
-	width: 1190px;
+	width: 900px;
 	height: 100%;
 	margin: auto;
 	padding: 0 5px;
@@ -1745,8 +1741,9 @@ body {
 #header .header_nav_wrap .header_left_box {
 	display: flex;
 	justify-content: flex-start;
-	flex: 2;
+	flex-grow: 2;
 	height: 100%;
+	flex-shrink: 0;
 }
 
 /* Left navigation box */
@@ -1849,12 +1846,12 @@ body {
 /* header nav center */
 #header .header_nav_wrap .header_center_box {
 	display: flex;
-	flex: 1.2;
 	height: 100%;
 	box-sizing: border-box;
 	padding: 8px 0;
 	align-items: center;
 	justify-content: center;
+	flex-shrink: 0;
 }
 
 /* mastodon logo */
@@ -1876,10 +1873,11 @@ body {
 
 /* header nav right*/
 #header .header_nav_wrap .header_right_box {
-	flex: 2;
+	flex-grow: 2;
 	box-sizing: border-box;
 	padding: 8px 0;
 	height: 100%;
+	flex-shrink: 0;
 }
 
 /* header nav right list */
@@ -2033,12 +2031,13 @@ body {
 
 /* toot button */
 #header .header_nav_wrap .header_right_box .toot_button {
-	width: 90px;
+	width: auto;
 	height: 100%;
 	border-radius: 4px;
 	color: #fff;
 	background-color: #2588D0;
 	transition: 0.15s ease-out;;
+	padding: 0 6px;
 }
 
 #header .header_nav_wrap .header_right_box .toot_button:hover {
@@ -2066,6 +2065,7 @@ body {
 #header .header_nav_wrap .header_right_box .toot_button span {
 	font-size: 13px;
 	font-weight: 500;
+	display: none;
 }
 
 /*--------------------------------------
@@ -2082,7 +2082,7 @@ body {
 
 #main > .header_image_box {
 	width: 100%;
-	height: 460px;
+	height: 280px;
   overflow: hidden;
 }
 
@@ -2101,7 +2101,7 @@ body {
 #main .profile_nav_wrap .profile_nav {
 	display: flex;
 	flex-wrap: nowrap;
-	width: 1200px;
+	width: 900px;
 	height: 100%;
 	margin: auto;
 	padding: 0 5px;
@@ -2115,6 +2115,7 @@ body {
 #main .profile_nav_wrap .profile_nav .profile_nav_left {
 	width: 300px;
 	height: 100%;
+	flex-shrink: 0;
 }
 
 /*--------------------------------------
@@ -2122,7 +2123,7 @@ body {
 --------------------------------------*/
 
 #main .profile_nav_wrap .profile_nav .profile_nav_right {
-	width: 900px;
+	width: 600px;
 	height: 100%;
 }
 
@@ -2217,7 +2218,7 @@ body {
 
 #js-search_title_box h1 {
 	display: block;
-	width: 1200px;
+	width: 900px;
 	margin: 0 auto;
 	padding: 0 16px;
 	font-size: 27px;
@@ -2238,7 +2239,7 @@ body {
 #main .search_nav_wrap .search_nav {
 	display: flex;
 	flex-wrap: nowrap;
-	width: 1200px;
+	width: 900px;
 	height: 100%;
 	margin: auto;
 	padding: 0 5px;
@@ -2334,7 +2335,7 @@ body {
 #main .article_wrap {
 	display: flex;
 	flex-wrap: nowrap;
-	width: 1200px;
+	width: 900px;
 	margin: auto;
 }
 
@@ -2466,6 +2467,7 @@ body {
 	width: 300px;
 	padding: 10px 5px;
 	box-sizing: border-box;
+	display: none;
 }
 
 /*-------------------------------------
@@ -2511,9 +2513,15 @@ body {
 
 #js-overlay_content_wrap #js-overlay_content {
 	width: 628px;
-	height: auto;
-	margin: 56px auto;
+	height: calc( 100% - 64px );
+	margin: 0 auto;
 	position: relative;
+}
+
+#js-overlay_content_wrap #js-overlay_content .parmanent_object.visible,
+#js-overlay_content_wrap #js-overlay_content .temporary_object.visible {
+	height: 100%;
+	width: 100%;
 }
 
 #js-overlay_content_wrap #js-overlay_content .close_button {
@@ -2584,6 +2592,7 @@ body {
 
 .toot_detail_wrap {
 	border-radius: 5px;
+	margin: 64px auto;
 }
 
 .toot_detail_wrap .toot_detail:first-child,
@@ -2673,10 +2682,6 @@ body {
 	font-size: 14px;
 }
 
-.toot_detail .toot_header a:hover {
-	text-decoration: none;
-}
-
 .toot_detail .toot_header a:hover .displayname {
 	color: #189EFC;
 }
@@ -2756,7 +2761,6 @@ body {
 
 .toot_detail .toot_header .expand_button_wrap .expand_menu a:hover {
 	background-color: #189EFC;
-	text-decoration: none;
 	color: #fff;
 }
 
@@ -2870,6 +2874,9 @@ body {
 
 .media_detail {
 	max-height: 100%;
+	display: flex;
+	flex-direction: column;
+	margin: 32px auto;
 }
 
 .media_detail .media_box {
@@ -2891,4 +2898,97 @@ body {
 
 .media_detail .toot_entry .media_views {
 	display: none;
+}
+
+/*---------------------------------------------
+  1200px or more
+---------------------------------------------*/
+
+@media screen and (min-width : 	1235px) {
+
+/*--------------------------------------
+  Header
+--------------------------------------*/
+
+#header .header_nav_wrap {
+	width: 1190px;
+}
+
+#main > .header_image_box {
+  height: 460px;
+}
+
+/*--------------------------------------
+  Header Right
+--------------------------------------*/
+
+/* toot button */
+#header .header_nav_wrap .header_right_box .toot_button {
+	width: 90px;
+}
+
+#header .header_nav_wrap .header_right_box .toot_button span {
+	display: inline;
+}
+
+/*--------------------------------------
+  Article
+--------------------------------------*/
+
+#main .article_wrap {
+	width: 1200px;
+}
+
+/*--------------------------------------
+  Article side column
+--------------------------------------*/
+
+#main .article_wrap .left_column > .right_column_clone {
+	display: none;
+}
+
+#main .article_wrap .right_column {
+	display: block;
+}
+
+/*--------------------------------------
+  Profile
+--------------------------------------*/
+
+#main .profile_nav_wrap .profile_nav {
+	width: 1200px;
+}
+
+#main .profile_nav_wrap .profile_nav .profile_nav_right {
+	width: 900px;
+}
+
+#js-follows_profile {
+    width: 900px;
+}
+
+/*--------------------------------------
+  Search
+--------------------------------------*/
+
+#js-search_title_box h1 {
+	width: 1200px;
+}
+
+#main .search_nav_wrap .search_nav {
+	width: 1200px;
+}
+
+}
+
+/*---------------------------------------------
+  1680px or more
+---------------------------------------------*/
+
+@media screen and (min-width : 	1680px) {
+
+#main > .header_image_box {
+  height: 500px;
+}
+
 }

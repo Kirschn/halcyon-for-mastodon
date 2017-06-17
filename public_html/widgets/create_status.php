@@ -1,4 +1,4 @@
-<form id="header_status_form" name="header_status_form" class="status_form">
+<form id="header_status_form" name="header_status_form" class="status_form ready">
 
     <div class="status_top">
       <input class="status_spoiler invisible" name="status_spoiler" placeholder="Content warning" type="text"/>

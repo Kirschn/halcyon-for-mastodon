@@ -13,12 +13,12 @@
   <link rel="stylesheet" type="text/css" href="/assets/css/fonts.css" media="all" />
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="/assets/js/halcyonFunc.js"></script>
+  <script src="/assets/js/halcyon/halcyonFunctions.js"></script>
   <script src="/assets/js/mastodon.js/mastodon.js"></script><!-- thx @kirschn -->
   <script src="/assets/js/jquery-cookie/src/jquery.cookie.js"></script>
   <script src="/assets/js/shortcut.js"></script>
   <script src="/assets/js/replace_emoji.js"></script>
-  <script src="/assets/js/halcyonUI.js"></script>
+  <script src="/assets/js/halcyon/halcyonUI.js"></script>
   <script src="https://twemoji.maxcdn.com/2/twemoji.min.js?2.2.3"></script>
 
   <script>
@@ -35,16 +35,6 @@
         resetApp();
       }
     }
-  </script>
-
-  <script>
-    // Google analytics
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-    ga('create', 'UA-98782992-1', 'auto');
-    ga('send', 'pageview');
   </script>
 
 </head>
